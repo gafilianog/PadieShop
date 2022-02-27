@@ -1,6 +1,5 @@
 package com.gafilianog.product;
 
-import java.util.Objects;
 
 public class Cloth extends Product {
 

@@ -1,7 +1,8 @@
 package com.gafilianog;
 
 // TODO: viewProducts and pick and checkout and notes (expdate, size, version)
-
+// Quantity of product ignored
+// Data only in memory
 
 import com.gafilianog.customer.Customer;
 import com.gafilianog.product.Cloth;
@@ -15,13 +16,13 @@ import java.util.HashMap;
 public class Main {
     HashMap<String, Customer> customerMap = new HashMap<>();
     ArrayList<Product> productLists = new ArrayList<>();
+    HashMap<String, ArrayList<Integer>> cartLists = new HashMap<>();
 
     public static void main(String[] args) {
         new Main();
     }
 
     public Main() {
-//        mainMenu("gafi");
         loginMenu();
     }
 
@@ -95,7 +96,9 @@ public class Main {
             System.out.print("Input Username : ");
             username = Utilities.scan.nextLine();
 
-            if (username.length() < 3 || username.length() > 16)
+            if (customerMap.containsKey(username))
+                System.out.println("Username already exists");
+            else if (username.length() < 3 || username.length() > 16)
                 System.out.println("Username must contains 3-16 characters!\n");
             else
                 isOK = true;
@@ -172,7 +175,7 @@ public class Main {
                     Utilities.exit();
 
                 case 1:
-                    purchasingMenu();
+                    purchasingMenu(username);
                     break;
 
                 case 2:
@@ -256,7 +259,7 @@ public class Main {
 
             if (choice == 1) {
                 // TODO: EXP Date
-                productLists.add(new Food(name + " [F]", price * 1.1, "Date"));
+                productLists.add(new Food(name + " [F]", price * 1.1, "Expire date: " + "01 JAN 1970"));
             } else if (choice == 2) {
                 String size;
                 boolean isOK = false;
@@ -270,11 +273,13 @@ public class Main {
                         System.out.println("Try again!");
                 } while (!isOK);
 
-                productLists.add(new Cloth(name + " [C]", price * 1.25, size));
+                productLists.add(new Cloth(name + " [C]", price * 1.25, "Size: " + size));
             } else if (choice == 3) {
                 String ver;
+
+                System.out.print("Version: ");
                 ver = Utilities.scan.nextLine();
-                productLists.add(new Tech(name + " [T]", price * 1.3, ver));
+                productLists.add(new Tech(name + " [T]", price * 1.3, "Version: " + ver));
             } else {
                 System.out.print("Stupid admin, you've been trained for this.");
                 Utilities.scan.nextLine();
@@ -293,7 +298,7 @@ public class Main {
 
         do {
             isOK = false;
-            System.out.print("Name : ");
+            System.out.print("Name: ");
             name = Utilities.scan.nextLine();
 
             if (name.length() >= 3 && name.length() <= 16)
@@ -323,7 +328,7 @@ public class Main {
         return price;
     }
 
-    private void purchasingMenu() {
+    private void purchasingMenu(String username) {
         int choice;
 
         do {
@@ -339,9 +344,9 @@ public class Main {
             choice = Utilities.checkIntInput();
 
             if (choice == 1) {
-                viewProducts();
+                viewProducts(username);
             } else if (choice == 2) {
-                checkOut();
+                checkOut(username);
             } else if (choice != 0) {
                 System.out.print("Only choose between 0-2!");
                 Utilities.scan.nextLine();
@@ -349,15 +354,52 @@ public class Main {
         } while (choice != 0);
     }
 
-    private void viewProducts() {
-        System.out.println("| No. |          Product Name          |     Price     |");
-        System.out.println("--------------------------------------------------------");
-        for (int i = 0; i < productLists.size(); i++) {
-            System.out.printf("| %-3d | %-32s | %-15f |\n", i + 1, productLists.get(i).getName(), productLists.get(i).getPrice());
+    private void viewProducts(String username) {
+        String notes;
+        int prodNo;
+        char confirmation;
+
+        ArrayList<Integer> tmpProdLists = new ArrayList<>();
+
+        while (true) {
+            Utilities.narStyleCLS();
+            System.out.println("+---------------------------------------------------------------------------------+");
+            System.out.println("| No. |          Product Name          |  Price (Rp)   |          Notes           |");
+            System.out.println("+---------------------------------------------------------------------------------+");
+
+            for (int i = 0; i < productLists.size(); i++) {
+                if (productLists.get(i).getName().endsWith("[F]")) {
+                    notes = ((Food)productLists.get(i)).getExpDate();
+                } else if (productLists.get(i).getName().endsWith("[C]")) {
+                    notes = ((Cloth)productLists.get(i)).getSize();
+                } else {
+                    notes = ((Tech)productLists.get(i)).getVersion();
+                }
+                System.out.printf("| %-3d | %-30s | %-13.2f | %-24s |\n", i + 1, productLists.get(i).getName(), productLists.get(i).getPrice(), notes);
+            }
+
+            System.out.println("+---------------------------------------------------------------------------------+");
+
+            do {
+                System.out.printf("What do you want to buy? (input product number %d - %d): ", 1, productLists.size());
+                prodNo = Utilities.checkIntInput();
+                if (prodNo == -1) System.out.println("Wrong input!\n");
+            } while (prodNo == -1);
+
+            tmpProdLists.add(prodNo-1);
+
+            System.out.print("Do you want to buy again? (Y/N): ");
+            confirmation = Utilities.scan.next().toLowerCase().charAt(0);
+            if (confirmation == 'n') {
+                cartLists.put(username, tmpProdLists);
+                return;
+            }
         }
     }
 
-    private void checkOut() {}
+    private void checkOut(String username) {
+//        System.out.println(cartLists.get(username).getClass());
+    }
 }
 
 // TODO: 1. Fitur purchasing
