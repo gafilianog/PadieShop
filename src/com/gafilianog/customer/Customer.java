@@ -10,7 +10,6 @@ public class Customer {
     private final String email;
     private final String password;
     private int balance;
-//    private ArrayList<Integer> receiptId = new ArrayList<>();
     private final HashMap<Integer, ArrayList<Integer>> receiptLists = new HashMap<>();
 
     public Customer(String userName, String fullName, String email, String password) {

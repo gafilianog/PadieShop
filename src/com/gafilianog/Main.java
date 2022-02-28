@@ -9,13 +9,18 @@ import com.gafilianog.product.Food;
 import com.gafilianog.product.Product;
 import com.gafilianog.product.Tech;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 
 public class Main {
     HashMap<String, Customer> customerMap = new HashMap<>();
     ArrayList<Product> productLists = new ArrayList<>();
     HashMap<String, ArrayList<Integer>> cartLists = new HashMap<>();
+    Date todayDate;
+    SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy");
 
     private int receiptId = 1;
 
@@ -24,6 +29,12 @@ public class Main {
     }
 
     public Main() {
+        try {
+            todayDate = sdf.parse(sdf.format(new Date()));
+        } catch (ParseException pe) {
+            pe.printStackTrace();
+        }
+
         loginMenu();
     }
 
@@ -259,8 +270,17 @@ public class Main {
             price = isPriceProdOk();
 
             if (choice == 1) {
-                // TODO: EXP Date
-                productLists.add(new Food(name + " [F]", (int) (price * 1.1), "Expire date: " + "01 JAN 1970"));
+                String date;
+                boolean isOK = false;
+
+                do {
+                    System.out.print("Expire date (ex: 12 Dec 2022): ");
+                    date = Utilities.scan.nextLine();
+                    if (isValidDate(date))
+                        isOK = true;
+                } while (!isOK);
+
+                productLists.add(new Food(name + " [F]", (int) (price * 1.1), "Expire date: " + date));
             } else if (choice == 2) {
                 String size;
                 boolean isOK = false;
@@ -271,7 +291,7 @@ public class Main {
                     if (size.equals("S") || size.equals("M") || size.equals("L") || size.equals("XL"))
                         isOK = true;
                     else
-                        System.out.println("Try again!");
+                        System.out.println("Try again!\n");
                 } while (!isOK);
 
                 productLists.add(new Cloth(name + " [C]", (int) (price * 1.25), "Size: " + size));
@@ -327,6 +347,23 @@ public class Main {
         } while (!isOK);
 
         return price;
+    }
+
+    private boolean isValidDate(String date) {
+        Date inputDate;
+        try {
+            inputDate = sdf.parse(date.trim());
+        } catch (ParseException pe) {
+            System.out.println("Date format not valid!\n");
+            return false;
+        }
+
+        if (inputDate.after(todayDate))
+            return true;
+        else {
+            System.out.println("You can't sell expired food here!\n");
+            return false;
+        }
     }
 
     private void purchasingMenu(String username) {
@@ -455,6 +492,7 @@ public class Main {
                 System.out.println("\nYour new balance: Rp " + customerMap.get(username).getBalance());
                 System.out.print("Press ENTER to return to shopping menu...");
             }
+            Utilities.scan.nextLine();
             Utilities.scan.nextLine();
         }
     }
