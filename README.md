@@ -1,15 +1,15 @@
-#Padie Shop
+# Padie Shop
 
 ---
 
 Simple shopping app command line-based using Java for LnT class Mid Project
 
-###Implementing:
+### Implementing:
 
 - Collection (Arraylist and Hashmap)
 - OOP Principle
 
-###Screenshot of program
+### Screenshot of program
 
 - Account registration
 ![registration](ssdemo/registration.jpg)
